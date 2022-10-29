@@ -1,16 +1,16 @@
 package store
 
 type Messager struct {
-	PublicQueue  MsgQueue
-	PrivateQueue MsgQueue
+	PublicQueue  *MsgQueue
+	PrivateQueue *MsgQueue
 
-	Users UserStore
+	Users *UserStore
 }
 
-func (m *Messager) NewMessager() *Messager {
+func NewMessager() *Messager {
 	return &Messager{
-		PublicQueue:  *m.PublicQueue.NewMsgQueue(),
-		PrivateQueue: *m.PrivateQueue.NewMsgQueue(),
-		Users:        *m.Users.NewUserStore(),
+		PublicQueue:  NewMsgQueue(),
+		PrivateQueue: NewMsgQueue(),
+		Users:        NewUserStore(),
 	}
 }

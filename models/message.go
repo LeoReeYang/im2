@@ -10,9 +10,10 @@ const (
 )
 
 type Message struct {
-	From      uint64    `json:"from"`
-	To        uint64    `json:"to"`
-	MsgType   int32     `json:"msgType"`
+	ID        string    `json:"id"`
+	Sender    uint64    `json:"from"`
+	Recipient string    `json:"to"`
+	Type      string    `json:"type"`
 	Content   string    `json:"content"`
 	Timestamp time.Time `json:"timestamp"`
 }

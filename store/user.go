@@ -10,7 +10,7 @@ type UserStore struct {
 	uLock sync.RWMutex
 }
 
-func (us *UserStore) NewUserStore() *UserStore {
+func NewUserStore() *UserStore {
 	return &UserStore{
 		users: make(map[uint64]*models.User),
 	}
