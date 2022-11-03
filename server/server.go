@@ -5,14 +5,14 @@ import "im/store"
 type Server struct {
 	hub *store.Hub
 
-	Messager *store.Messager
+	Messager store.MessageStore
 }
 
-func NewServer() *Server {
-	return &Server{
-		hub:      store.NewHub(),
-		Messager: store.NewMessager(),
-	}
+func NewServer(ms store.MessageStore) *Server {
+	s := new(Server)
+	s.hub = store.NewHub()
+	s.Messager = ms
+	return s
 }
 
 func (s *Server) Setup() {

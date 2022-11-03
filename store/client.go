@@ -28,10 +28,10 @@ const (
 	maxMessageSize = 512
 )
 
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
-)
+// var (
+// 	newline = []byte{'\n'}
+// 	space   = []byte{' '}
+// )
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -39,19 +39,18 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	ID  string
-	hub *Hub
+	roomid string
+	name   string
+	hub    *Hub
 
-	// The websocket connection.
 	conn *websocket.Conn
 
-	// Buffered channel of outbound messages.
 	send chan *models.Message
 }
 
 // NewClient creates a new client
-func NewClient(id string, conn *websocket.Conn, hub *Hub) *Client {
-	return &Client{ID: id, conn: conn, send: make(chan *models.Message, 1024), hub: hub}
+func NewClient(roomid string, nickname string, conn *websocket.Conn, hub *Hub) *Client {
+	return &Client{roomid: roomid, name: nickname, conn: conn, send: make(chan *models.Message, 1024), hub: hub}
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -75,6 +74,7 @@ func (c *Client) readPump() {
 			break
 		}
 		c.hub.broadcast <- &msg
+		fmt.Printf("Client channel get : %v\n", msg)
 	}
 }
 
@@ -104,6 +104,8 @@ func (c *Client) writePump() {
 					fmt.Println("Error: ", err)
 					break
 				}
+
+				fmt.Println("send channel get msg and send ok !")
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -115,13 +117,13 @@ func (c *Client) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func ServeWs(id string, hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(roomid string, nickname string, hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	client := NewClient(id, conn, hub)
+	client := NewClient(roomid, nickname, conn, hub)
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in

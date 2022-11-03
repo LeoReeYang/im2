@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type MsgType int32
 
 const (
@@ -10,10 +8,10 @@ const (
 )
 
 type Message struct {
-	ID        string    `json:"id"`
-	Sender    uint64    `json:"from"`
-	Recipient string    `json:"to"`
-	Type      string    `json:"type"`
-	Content   string    `json:"content"`
-	Timestamp time.Time `json:"timestamp"`
+	ID        string `json:"id"`
+	Sender    uint64 `json:"from"`
+	Recipient string `json:"to"`
+	Type      string `json:"type"`
+	Content   string `json:"content"`
+	Timestamp int64  `json:"timestamp"`
 }
