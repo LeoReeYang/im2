@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 
-	// v1 "github.com/LeoReeYang/im2/api/v1"
 	"github.com/LeoReeYang/im2/server"
 	"github.com/LeoReeYang/im2/store"
 
@@ -28,6 +27,7 @@ func main() {
 		// api.echo(ctx.Writer, ctx.Request)
 		// echo(ctx)
 		// api.echo
+		// v1.echo(ctx)
 	})
 
 	r.GET("/chat", func(ctx *gin.Context) {
