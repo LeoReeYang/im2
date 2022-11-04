@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/url"
@@ -13,7 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "localhost:8080", "http service address")
 
 func TestClient(t *testing.T) {
 	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws"}
