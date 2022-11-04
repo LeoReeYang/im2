@@ -1,8 +1,9 @@
 package store
 
 import (
-	"im/models"
 	"sync"
+
+	"github.com/LeoReeYang/im2/models"
 )
 
 type UserStore struct {

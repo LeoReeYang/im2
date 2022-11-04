@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"im/models"
 	"log"
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/LeoReeYang/im2/models"
 
 	"github.com/gorilla/websocket"
 )

@@ -6,10 +6,11 @@ package store
 
 import (
 	"fmt"
-	"im/models"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/LeoReeYang/im2/models"
 
 	"github.com/gorilla/websocket"
 )

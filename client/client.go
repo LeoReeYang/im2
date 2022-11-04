@@ -11,12 +11,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"im/models"
 	"log"
 	"net/url"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/LeoReeYang/im2/models"
 
 	"github.com/gorilla/websocket"
 )

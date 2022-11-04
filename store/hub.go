@@ -6,8 +6,9 @@ package store
 
 import (
 	"fmt"
-	"im/models"
 	"log"
+
+	"github.com/LeoReeYang/im2/models"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the

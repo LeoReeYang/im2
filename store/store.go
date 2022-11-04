@@ -1,6 +1,6 @@
 package store
 
-import "im/models"
+import "github.com/LeoReeYang/im2/models"
 
 type MessageStore interface {
 	Get() *models.Message

@@ -1,11 +1,14 @@
 package server
 
-import "im/store"
+import (
+	"github.com/LeoReeYang/im2/store"
+)
 
 type Server struct {
 	hub *store.Hub
 
 	Messager store.MessageStore
+	// router   *gin.Engine
 }
 
 func NewServer(ms store.MessageStore) *Server {
