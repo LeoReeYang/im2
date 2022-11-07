@@ -7,11 +7,22 @@ import (
 )
 
 func TestCmd(t *testing.T) {
-	var id int
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	// var id int
 
-	flag.IntVar(&id, "i", 0, "-i input id: ")
+	var cmd string
+	// flag.IntVar(&id, "i", 0, "-i input id: ")
+	flag.StringVar(&cmd, "c", "123", "-c xxx")
 
 	flag.Parse()
 
-	fmt.Println("input id : ", id)
+	// args := flag.Args()
+	// for _, arg := range args {
+	// 	log.Println("arg get :", arg)
+	// }
+
+	// fmt.Println("input id : ", id)
+	fmt.Println(cmd)
 }

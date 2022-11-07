@@ -43,10 +43,8 @@ type Client struct {
 	roomid string
 	name   string
 	hub    *Hub
-
-	conn *websocket.Conn
-
-	send chan *models.Message
+	conn   *websocket.Conn
+	send   chan *models.Message
 }
 
 // NewClient creates a new client
@@ -61,7 +59,11 @@ func NewClient(roomid string, nickname string, conn *websocket.Conn, hub *Hub) *
 // reads from this goroutine.
 func (c *Client) readPump() {
 	defer func() {
-		c.hub.unregister <- c
+		info := &Info{
+			Client: c,
+			Room:   c.roomid,
+		}
+		c.hub.unregister <- info
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
@@ -75,7 +77,7 @@ func (c *Client) readPump() {
 			break
 		}
 		c.hub.broadcast <- &msg
-		fmt.Printf("Client %v channel get msg : %v\n", c.name, msg)
+		fmt.Printf("Client %v get msg from conn:\n msg: %v\n", c.name, msg)
 	}
 }
 
@@ -106,8 +108,7 @@ func (c *Client) writePump() {
 					break
 				}
 
-				fmt.Println("Send channel get msg and send ok !")
-				fmt.Println()
+				fmt.Printf("Client: < %s > send msg to conn\n msg : %v\n", c.name, message)
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -126,7 +127,11 @@ func ServeWs(roomid string, nickname string, hub *Hub, w http.ResponseWriter, r 
 		return
 	}
 	client := NewClient(roomid, nickname, conn, hub)
-	client.hub.register <- client
+	info := &Info{
+		Client: client,
+		Room:   roomid,
+	}
+	client.hub.register <- info
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

@@ -17,7 +17,7 @@ import (
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
 func TestClient(t *testing.T) {
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws"}
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws/testroom"}
 	log.Printf("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -28,7 +28,7 @@ func TestClient(t *testing.T) {
 
 	msg := &models.Message{
 		ID:        "123",
-		Sender:    123,
+		Sender:    "test",
 		Recipient: "server",
 		Type:      "message",
 		Content:   "test",

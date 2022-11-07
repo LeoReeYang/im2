@@ -6,10 +6,14 @@ package store
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/LeoReeYang/im2/models"
 )
+
+type Info struct {
+	Client *Client
+	Room   string
+}
 
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
@@ -17,9 +21,9 @@ type Hub struct {
 	// Registered clients.
 	rooms map[string]map[*Client]bool
 	//Unregistered clients.
-	unregister chan *Client
+	unregister chan *Info
 	// Register requests from the clients.
-	register chan *Client
+	register chan *Info
 	// Inbound messages from the clients.
 	broadcast chan *models.Message
 }
@@ -27,8 +31,8 @@ type Hub struct {
 func NewHub() *Hub {
 	return &Hub{
 		rooms:      make(map[string]map[*Client]bool),
-		unregister: make(chan *Client),
-		register:   make(chan *Client),
+		unregister: make(chan *Info),
+		register:   make(chan *Info),
 		broadcast:  make(chan *models.Message),
 	}
 }
@@ -37,11 +41,11 @@ func (h *Hub) Run() {
 	for {
 		select {
 		// Register a client.
-		case client := <-h.register:
-			h.RegisterNewClient(client)
+		case info := <-h.register:
+			h.RegisterNewClient(info)
 		// Unregister a client.
-		case client := <-h.unregister:
-			h.RemoveClient(client)
+		case info := <-h.unregister:
+			h.RemoveClient(info)
 		// Broadcast a message to all clients.
 		case message := <-h.broadcast:
 			//Check if the message is a type of "message"
@@ -51,34 +55,40 @@ func (h *Hub) Run() {
 }
 
 // function check if room exists and if not create it and add client to it
-func (h *Hub) RegisterNewClient(client *Client) {
+func (h *Hub) RegisterNewClient(info *Info) {
 	// id refer to different rooms
-	connections := h.rooms[client.roomid]
+	roomid := info.Room
+	client := info.Client
+
+	connections := h.rooms[roomid]
 	if connections == nil {
 		connections = make(map[*Client]bool)
-		h.rooms[client.roomid] = connections
+		h.rooms[roomid] = connections
 	}
-	h.rooms[client.roomid][client] = true
+	h.rooms[roomid][client] = true
 
-	fmt.Println("Size of clients: ", len(h.rooms[client.roomid]))
+	fmt.Printf("Size of clients %d ,of room %s: \n", len(h.rooms[client.roomid]), roomid)
 }
 
 // function to remvoe client from room
-func (h *Hub) RemoveClient(client *Client) {
-	if _, ok := h.rooms[client.roomid]; ok {
-		delete(h.rooms[client.roomid], client)
+func (h *Hub) RemoveClient(info *Info) {
+	roomid := info.Room
+	client := info.Client
+
+	if _, ok := h.rooms[roomid]; ok {
+		delete(h.rooms[roomid], client)
 		close(client.send)
-		fmt.Println("Removed client")
+		fmt.Printf("Removed client <%v> from room: '%v'\n", client, roomid)
 	}
 }
 
 // function to handle message based on type of message
 func (h *Hub) HandleMessage(message *models.Message) {
-	fmt.Printf("hub handle msg : %v\n", message)
+	// fmt.Printf("hub handle msg : %v\n", message)
 
-	if message.Type != "message" {
-		log.Fatal("not equal!\n")
-	}
+	// if message.Type != "message" {
+	// 	log.Fatal("not equal!\n")
+	// }
 
 	switch message.Type {
 	case "message":

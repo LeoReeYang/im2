@@ -26,9 +26,12 @@ var addr = flag.String("addr", "localhost:8080", "http service address")
 
 func main() {
 
-	var name uint64
-	// flag.UintVar(&name, "n", "unknown user", "user name")
-	flag.Uint64Var(&name, "n", 123, "user name")
+	// var name uint64
+	// // flag.UintVar(&name, "n", "unknown user", "user name")
+	// flag.Uint64Var(&name, "n", 123, "user name")
+
+	var name string
+	flag.StringVar(&name, "n", "Guest", "-n xxx")
 
 	flag.Parse()
 	log.SetFlags(0)
@@ -36,7 +39,7 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws/:testuser"}
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws/testroom", RawQuery: "nickyname=" + name}
 	log.Printf("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -55,15 +58,15 @@ func main() {
 				log.Println("read:", err)
 				return
 			}
-			log.Printf("\n%d client recv: %s\n", name, message)
+			log.Printf("client %s recv msg: %s\n", name, message)
 		}
 	}()
 
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	msg := models.Message{
-		ID:        "001",
+		ID:        "testroom",
 		Sender:    name,
 		Recipient: "server",
 		Type:      "message",
@@ -87,7 +90,7 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
-			fmt.Printf("send msg : %s\n", string(b))
+			fmt.Printf("%s Sent msg : %s\n", name, string(b))
 			c.WriteMessage(websocket.BinaryMessage, b)
 		case <-interrupt:
 			log.Println("interrupt")

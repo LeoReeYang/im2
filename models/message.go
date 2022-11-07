@@ -9,7 +9,7 @@ const (
 
 type Message struct {
 	ID        string `json:"id"`
-	Sender    uint64 `json:"from"`
+	Sender    string `json:"from"`
 	Recipient string `json:"to"`
 	Type      string `json:"type"`
 	Content   string `json:"content"`

@@ -26,11 +26,15 @@ func SetupRouters() {
 	hub := server.GetHub()
 	go hub.Run()
 
-	r.GET("/ws/:nickname", func(ctx *gin.Context) {
+	// /ws/:room?nickyname=xxx
+	r.GET("/ws/:room", func(ctx *gin.Context) {
 		w := ctx.Writer
 		r := ctx.Request
-		nickname := ctx.Param("nickname")
-		store.ServeWs("001", nickname, hub, w, r)
+
+		room := ctx.Param("room")
+		nickname := ctx.DefaultQuery("nickyname", "Guest")
+
+		store.ServeWs(room, nickname, hub, w, r)
 	})
 
 	test := r.Group("/test")
