@@ -74,29 +74,26 @@ func (h *Hub) RemoveClient(client *Client) {
 
 // function to handle message based on type of message
 func (h *Hub) HandleMessage(message *models.Message) {
-
 	fmt.Printf("hub handle msg : %v\n", message)
 
 	if message.Type != "message" {
 		log.Fatal("not equal!\n")
 	}
 
-	//Check if the message is a type of "message"
-	if message.Type == "message" {
+	switch message.Type {
+	case "message":
 		clients := h.rooms[message.ID]
 		for client := range clients {
 			select {
 			case client.send <- message:
-				fmt.Println("msg -> client send channel ok!")
+				// fmt.Println("msg -> client send channel ok!")
+				fmt.Printf("broadcast channel handle msg from %v to %v \n", message.Sender, message.Recipient)
 			default:
 				close(client.send)
 				delete(h.rooms[message.ID], client)
 			}
 		}
-	}
-
-	//Check if the message is a type of "notification"
-	if message.Type == "notification" {
+	case "notification":
 		fmt.Println("Notification: ", message.Content)
 		clients := h.rooms[message.Recipient]
 		for client := range clients {

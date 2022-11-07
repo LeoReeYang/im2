@@ -17,7 +17,7 @@ import (
 // @Accept json
 // @Produce json
 // @Success 200 {string} Helloworld
-// @Router /echo [get]
+// @Router /test/echo [get]
 func Echo(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "helloworld")
 }

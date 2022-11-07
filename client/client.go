@@ -25,13 +25,18 @@ import (
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
 func main() {
+
+	var name uint64
+	// flag.UintVar(&name, "n", "unknown user", "user name")
+	flag.Uint64Var(&name, "n", 123, "user name")
+
 	flag.Parse()
 	log.SetFlags(0)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/Chat"}
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws/:testuser"}
 	log.Printf("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -50,7 +55,7 @@ func main() {
 				log.Println("read:", err)
 				return
 			}
-			log.Printf("\nclient recv: %s\n", message)
+			log.Printf("\n%d client recv: %s\n", name, message)
 		}
 	}()
 
@@ -59,7 +64,7 @@ func main() {
 
 	msg := models.Message{
 		ID:        "001",
-		Sender:    123,
+		Sender:    name,
 		Recipient: "server",
 		Type:      "message",
 		Content:   "test",
@@ -70,20 +75,19 @@ func main() {
 		select {
 		case <-done:
 			return
-		case <-ticker.C:
-			// err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
-			// if err != nil {
-			// 	log.Println("write:", err)
-			// 	return
-			// }
+		case t, ok := <-ticker.C:
+			if !ok {
+				log.Fatal("Ticker failed.")
+				return
+			}
 
-			msg.Timestamp = time.Now().Unix()
+			msg.Timestamp = t.Unix()
 
 			b, err := json.Marshal(msg)
 			if err != nil {
 				log.Println(err)
 			}
-			fmt.Printf("%s", string(b))
+			fmt.Printf("send msg : %s\n", string(b))
 			c.WriteMessage(websocket.BinaryMessage, b)
 		case <-interrupt:
 			log.Println("interrupt")

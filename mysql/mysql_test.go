@@ -4,6 +4,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/LeoReeYang/im2/models"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -32,7 +33,7 @@ func TestMysql(t *testing.T) {
 		log.Fatalf("mysql error %v", err)
 	}
 
-	// db.AutoMigrate(&Product{})
+	db.AutoMigrate(&models.User{})
 
 	db.Create(&Product{Code: "D42", Price: 100})
 

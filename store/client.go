@@ -75,7 +75,7 @@ func (c *Client) readPump() {
 			break
 		}
 		c.hub.broadcast <- &msg
-		fmt.Printf("Client channel get : %v\n", msg)
+		fmt.Printf("Client %v channel get msg : %v\n", c.name, msg)
 	}
 }
 
@@ -102,11 +102,12 @@ func (c *Client) writePump() {
 			} else {
 				err := c.conn.WriteJSON(message)
 				if err != nil {
-					fmt.Println("Error: ", err)
+					fmt.Println("Client WriteJson Error: ", err)
 					break
 				}
 
-				fmt.Println("send channel get msg and send ok !")
+				fmt.Println("Send channel get msg and send ok !")
+				fmt.Println()
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
