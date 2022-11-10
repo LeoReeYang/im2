@@ -15,3 +15,7 @@ type Message struct {
 	Content   string `json:"content"`
 	Timestamp int64  `json:"timestamp"`
 }
+
+func NewMessage() *Message {
+	return &Message{}
+}

@@ -26,20 +26,20 @@ func SetupRouters() {
 	hub := server.GetHub()
 	go hub.Run()
 
-	// /ws/:room?nickyname=xxx
-	r.GET("/ws/:room", func(ctx *gin.Context) {
+	r.GET("/ws/chat", func(ctx *gin.Context) {
 		w := ctx.Writer
 		r := ctx.Request
 
-		room := ctx.Param("room")
-		nickname := ctx.DefaultQuery("nickyname", "Guest")
+		name := ctx.Query("nickyname")
 
-		store.ServeWs(room, nickname, hub, w, r)
+		store.Handle(w, r, hub, name)
 	})
 
 	test := r.Group("/test")
 	{
 		test.GET("/echo", v1.Echo)
+		test.GET("/xjp", v1.Test)
+		test.POST("/chat", v1.Test)
 	}
 
 	users := r.Group("/user")

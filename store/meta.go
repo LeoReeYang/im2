@@ -9,6 +9,8 @@ type Meta struct {
 
 	// Unregister requests from clients.
 	Unregister chan *Client
+
+	// locker sync.RWMutex
 }
 
 func NewMeta() *Meta {

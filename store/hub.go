@@ -6,6 +6,7 @@ package store
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/LeoReeYang/im2/models"
 )
@@ -26,6 +27,10 @@ type Hub struct {
 	register chan *Info
 	// Inbound messages from the clients.
 	broadcast chan *models.Message
+	// all clients
+	clients map[uint64]*Client
+
+	locker sync.RWMutex
 }
 
 func NewHub() *Hub {
@@ -34,6 +39,7 @@ func NewHub() *Hub {
 		unregister: make(chan *Info),
 		register:   make(chan *Info),
 		broadcast:  make(chan *models.Message),
+		clients:    make(map[uint64]*Client),
 	}
 }
 
@@ -60,6 +66,10 @@ func (h *Hub) RegisterNewClient(info *Info) {
 	roomid := info.Room
 	client := info.Client
 
+	h.locker.Lock()
+	h.clients[0] = client
+	h.locker.Unlock()
+
 	connections := h.rooms[roomid]
 	if connections == nil {
 		connections = make(map[*Client]bool)
@@ -84,25 +94,19 @@ func (h *Hub) RemoveClient(info *Info) {
 
 // function to handle message based on type of message
 func (h *Hub) HandleMessage(message *models.Message) {
-	// fmt.Printf("hub handle msg : %v\n", message)
-
-	// if message.Type != "message" {
-	// 	log.Fatal("not equal!\n")
-	// }
-
 	switch message.Type {
 	case "message":
 		clients := h.rooms[message.ID]
 		for client := range clients {
 			select {
 			case client.send <- message:
-				// fmt.Println("msg -> client send channel ok!")
-				fmt.Printf("broadcast channel handle msg from %v to %v \n", message.Sender, message.Recipient)
+				fmt.Printf("MQ channel handle msg from %v to %v \n", message.Sender, message.Recipient)
 			default:
 				close(client.send)
 				delete(h.rooms[message.ID], client)
 			}
 		}
+
 	case "notification":
 		fmt.Println("Notification: ", message.Content)
 		clients := h.rooms[message.Recipient]

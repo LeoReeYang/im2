@@ -5,7 +5,8 @@ import (
 )
 
 type Server struct {
-	hub *store.Hub
+	// hub   *store.Hub
+	huber *store.Huber
 
 	Messager store.MessageStore
 	// router   *gin.Engine
@@ -13,15 +14,17 @@ type Server struct {
 
 func NewServer(ms store.MessageStore) *Server {
 	s := new(Server)
-	s.hub = store.NewHub()
+	// s.hub = store.NewHub()
+	s.huber = store.NewHuber()
 	s.Messager = ms
 	return s
 }
 
 func (s *Server) Setup() {
-	go s.hub.Run()
+	// go s.hub.Run()
+	go s.huber.Run()
 }
 
-func (s *Server) GetHub() *store.Hub {
-	return s.hub
+func (s *Server) GetHub() *store.Huber {
+	return s.huber
 }
