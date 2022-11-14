@@ -5,6 +5,7 @@ import (
 
 	v1 "github.com/LeoReeYang/im2/api/v1"
 	"github.com/LeoReeYang/im2/docs"
+	"github.com/LeoReeYang/im2/middlewares"
 	"github.com/LeoReeYang/im2/server"
 	"github.com/LeoReeYang/im2/store"
 
@@ -34,6 +35,15 @@ func SetupRouters() {
 
 		store.Handle(w, r, hub, name)
 	})
+
+	r.POST("/login", v1.Login)
+	r.POST("/register", v1.Register)
+
+	protected := r.Group("api/admin")
+	{
+		protected.Use(middlewares.JWTAuthMiddleware())
+		protected.GET("/user", v1.CurrentUser)
+	}
 
 	test := r.Group("/test")
 	{

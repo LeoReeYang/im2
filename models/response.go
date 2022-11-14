@@ -29,3 +29,10 @@ type SignedResponse struct {
 	Token   string `json:"token"`
 	Message string `json:"message"`
 }
+
+type LoginRsp struct {
+	Message string `json:"message"`
+}
+type RegisterRsp struct {
+	Message string `json:"message"`
+}

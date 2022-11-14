@@ -17,7 +17,8 @@ type Huber struct {
 	// all clients
 	clients map[string]*User
 
-	locker sync.RWMutex
+	Clients map[*User]bool
+	locker  sync.RWMutex
 }
 
 func NewHuber() *Huber {

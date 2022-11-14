@@ -9,3 +9,7 @@ app:
 
 redis:
   addr: "localhost:6379"
+
+secret:
+  key: "helloWorld"
+  life_span: 1

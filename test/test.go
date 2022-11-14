@@ -1,11 +1,11 @@
-package main
+package test
 
 import (
 	"flag"
 	"fmt"
 )
 
-func main() {
+func Tain1() {
 	var cmd string
 	// flag.IntVar(&id, "i", 0, "-i input id: ")
 	flag.StringVar(&cmd, "c", "123", "-c xxx")
@@ -18,3 +18,5 @@ func main() {
 	// }
 	fmt.Println(cmd)
 }
+
+// func TestMd(t *Test)

@@ -4,7 +4,9 @@ import (
 
 	// "image/color"
 
+	"github.com/LeoReeYang/im2/models"
 	"github.com/LeoReeYang/im2/router"
+	"github.com/LeoReeYang/im2/utils"
 	"github.com/fatih/color"
 )
 
@@ -12,9 +14,10 @@ var Red = color.New(color.FgRed).FprintfFunc()
 var Blue = color.New(color.FgBlue).FprintfFunc()
 
 func main() {
-	// utils.InitConfig()
+	utils.InitConfig()
 	// utils.InitRedis()
 	// utils.InitDB()
+	models.InitDB()
 	router.SetupRouters()
 
 	// r := gin.Default()
