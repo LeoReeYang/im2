@@ -7,7 +7,7 @@ import (
 )
 
 func TestConn(t *testing.T) {
-	url := newWsUrl("xjp", *Addr, Path)
+	url := newWsUrl("cy", *Addr, Path)
 
 	c := newWebConn(url.String())
 
@@ -17,31 +17,32 @@ func TestConn(t *testing.T) {
 }
 
 func TestRecv(t *testing.T) {
-	Client := NewClient("xjp", *Addr, Path)
-	time.Sleep(time.Second)
+	Client := NewClient("yzy", *Addr, Path)
+	// time.Sleep(time.Second)
 
 	if msg, ok := Client.Receive(); ok {
 		fmt.Println("Message get:", msg)
-		if msg.Content != "民族富强！" {
-			t.Errorf("content not match.")
-		}
+		// if msg.Content != "民族富强！" {
+		// 	t.Errorf("content not match.")
+		// }
 	}
+	time.Sleep(10 * time.Second)
 }
 
-func TestSend(t *testing.T) {
-	Client := NewClient("xjp", *Addr, Path)
+func TestSendMessage(t *testing.T) {
+	Client := NewClient("test", *Addr, Path)
 	time.Sleep(time.Second)
 
-	Client.Send("server", "testmsg")
+	Client.Send("yzy", "Hello!")
+	time.Sleep(5 * time.Second)
 }
 
 func TestSendAndRecive(t *testing.T) {
-	ClientA := NewClient("xjp", *Addr, Path)
-	// ClientB := NewClient("ply", *Addr, Path)
+	ClientA := NewClient("cy", *Addr, Path)
 
 	want := string("民族富强！")
 
-	ClientA.Send("server", want)
+	ClientA.Send("cy", want)
 	time.Sleep(time.Second)
 
 	if msg, ok := ClientA.Receive(); ok {
@@ -103,4 +104,8 @@ func Test2People(t *testing.T) {
 			t.Errorf("content not match.")
 		}
 	}
+}
+
+func TestMessageSend(t *testing.T) {
+
 }

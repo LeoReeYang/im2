@@ -2,6 +2,7 @@ package router
 
 import (
 	"flag"
+	"net/http"
 
 	v1 "github.com/LeoReeYang/im2/api/v1"
 	"github.com/LeoReeYang/im2/docs"
@@ -22,22 +23,29 @@ func SetupRouters() {
 	docs.SwaggerInfo.BasePath = ""
 	flag.Parse()
 
-	server := server.NewServer(store.NewMsgQueue())
+	server := server.NewServer(store.NewSimpleStore())
 
 	hub := server.GetHub()
 	go hub.Run()
 
-	r.GET("/ws/chat", func(ctx *gin.Context) {
+	r.POST("/login", v1.Login)
+	r.POST("/register", v1.Register)
+
+	r.GET("/testchat", func(ctx *gin.Context) {
 		w := ctx.Writer
 		r := ctx.Request
 
-		name := ctx.Query("nickyname")
-
+		name := ctx.Query("nickname")
+		// color.Magenta("nickname", name)
 		store.Handle(w, r, hub, name)
 	})
 
-	r.POST("/login", v1.Login)
-	r.POST("/register", v1.Register)
+	r.GET("/users", func(ctx *gin.Context) {
+		data := hub.GetAllUsers()
+		ctx.JSON(http.StatusOK, gin.H{
+			"users": data,
+		})
+	})
 
 	protected := r.Group("api/admin")
 	{
@@ -48,8 +56,19 @@ func SetupRouters() {
 	test := r.Group("/test")
 	{
 		test.GET("/echo", v1.Echo)
-		test.GET("/xjp", v1.Test)
-		test.POST("/chat", v1.Test)
+	}
+
+	chat := r.Group("/chat")
+	{
+		chat.Use(middlewares.JWTAuthMiddleware())
+		chat.GET("/", func(ctx *gin.Context) {
+			w := ctx.Writer
+			r := ctx.Request
+
+			name := ctx.Query("nickname")
+			// color.Magenta("nickname", name)
+			store.Handle(w, r, hub, name)
+		})
 	}
 
 	users := r.Group("/user")

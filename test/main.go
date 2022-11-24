@@ -61,7 +61,6 @@ func t() {
 	defer ticker.Stop()
 
 	msg := models.Message{
-		ID:        "testroom",
 		Sender:    name,
 		Recipient: "server",
 		Type:      "message",

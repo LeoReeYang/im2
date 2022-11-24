@@ -23,7 +23,7 @@ func newWsUrl(name string, host string, path string) *url.URL {
 		Scheme:   Scheme,
 		Host:     host,
 		Path:     path,
-		RawQuery: "nickyname=" + name,
+		RawQuery: "nickname=" + name,
 	}
 	return u
 }

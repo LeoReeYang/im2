@@ -27,7 +27,6 @@ func TestClient(t *testing.T) {
 	defer c.Close()
 
 	msg := &models.Message{
-		ID:        "123",
 		Sender:    "test",
 		Recipient: "server",
 		Type:      "message",

@@ -8,7 +8,7 @@ import (
 )
 
 type Huber struct {
-	//Unregistered clients.
+	// Unregistered clients.
 	unregister chan *User
 	// Register requests from the clients.
 	register chan *User
@@ -16,17 +16,21 @@ type Huber struct {
 	mq chan *models.Message
 	// all clients
 	clients map[string]*User
-
+	// check whether User online
 	Clients map[*User]bool
-	locker  sync.RWMutex
+
+	Messager MessageStore
+	locker   sync.RWMutex
 }
 
-func NewHuber() *Huber {
+func NewHuber(ms MessageStore) *Huber {
 	return &Huber{
 		unregister: make(chan *User),
 		register:   make(chan *User),
-		mq:         make(chan *models.Message),
+		mq:         make(chan *models.Message, 1024),
 		clients:    make(map[string]*User),
+		Clients:    make(map[*User]bool),
+		Messager:   ms,
 	}
 }
 
@@ -44,38 +48,59 @@ func (h *Huber) Run() {
 }
 
 func (h *Huber) registe(u *User) {
-	go func() {
-		color.Cyan("%s connect to huber", u.name)
-		h.locker.Lock()
-		h.clients[u.name] = u
-		h.locker.Unlock()
-	}()
+	color.Cyan("%s connect to huber", u.name)
+
+	h.locker.Lock()
+	h.clients[u.name] = u
+	h.locker.Unlock()
 }
 
 func (h *Huber) unregiste(u *User) {
-	go func() {
-		color.Cyan("%s disconnect", u.name)
-		h.locker.Lock()
-		delete(h.clients, u.name)
-		h.locker.Unlock()
+	color.Cyan("%s disconnect...", u.name)
 
-		u.conn.Close()
-		// close(u.send)
-		// close(u.recive)
-	}()
+	h.locker.Lock()
+	delete(h.clients, u.name)
+	delete(h.Clients, u)
+	h.locker.Unlock()
 
+	u.conn.Close()
+}
+
+func (h *Huber) messageStore(msg *models.Message) error {
+	return h.Messager.Put(msg)
 }
 
 func (h *Huber) transfer(msg *models.Message) {
-	go func() {
-		h.locker.RLock()
-		for name, user := range h.clients {
-			if name == msg.Recipient {
-				color.Yellow("%s 's channel get a msg", name)
-				user.send <- msg
-				break
-			}
-		}
-		h.locker.RUnlock()
-	}()
+	h.locker.RLock()
+	if user, ok := h.clients[msg.Recipient]; ok {
+		color.Yellow("%s 's channel receive a msg", msg.Recipient)
+		user.send <- msg
+	}
+	h.locker.RUnlock()
+
+	err := h.messageStore(msg)
+	if err != nil {
+		color.Yellow("internl faild")
+	}
+}
+
+func (h *Huber) LeaveEnqueue(u *User) {
+	h.unregister <- u
+}
+
+func (h *Huber) EnterEnqueue(u *User) {
+	h.register <- u
+}
+
+func (h *Huber) MessageEnqueue(msg *models.Message) {
+	h.mq <- msg
+}
+
+func (h *Huber) GetAllUsers() []string {
+	ret := []string{}
+	for name := range h.clients {
+		ret = append(ret, name)
+	}
+
+	return ret
 }

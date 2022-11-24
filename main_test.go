@@ -35,3 +35,7 @@ func TestWEBs(t *testing.T) {
 
 	http.ListenAndServe(":12345", http.HandlerFunc(handler))
 }
+
+func TestName(t *testing.T) {
+
+}

@@ -1,7 +1,6 @@
 package client
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -17,25 +16,21 @@ type Client struct {
 }
 
 func (c *Client) ListenMsg() {
-	// go func() {
 	for {
-		_, message, err := c.C.ReadMessage()
+		message := models.Message{}
+		err := c.C.ReadJSON(&message)
 		if err != nil {
 			log.Fatal("Message read error :", err)
 		}
 
-		msg := models.NewMessage()
-		json.Unmarshal(message, msg)
-		c.readBuf <- msg
+		c.readBuf <- &message
 
-		// log.Printf("client <%s> recive msg: %s\n", c.Name, string(message))
+		log.Printf("client <%s> recive msg: %v\n", c.Name, message)
 	}
-	// }()
 }
 
 func NewClient(name string, host string, path string) *Client {
 	u := newWsUrl(name, host, path)
-	// c := newWebConn(u.String())
 	client := &Client{
 		Name:    name,
 		C:       newWebConn(u.String()),
@@ -49,7 +44,6 @@ func NewClient(name string, host string, path string) *Client {
 
 func (c *Client) Send(recipient, content string) {
 	msg := &models.Message{
-		ID:        "testroom",
 		Sender:    c.Name,
 		Recipient: recipient,
 		Type:      "message",
@@ -57,18 +51,16 @@ func (c *Client) Send(recipient, content string) {
 		Timestamp: time.Now().Unix(),
 	}
 
-	b, err := json.Marshal(*msg)
+	err := c.C.WriteJSON(msg)
 	if err != nil {
-		log.Println("Message json.Marshal err: ", err)
+		log.Println(err)
 	}
-	fmt.Printf("<%s> Sent msg : %s\n", c.Name, b)
-	c.C.WriteMessage(websocket.BinaryMessage, b)
+	fmt.Printf("<%s> Sent msg : %v\n", c.Name, msg)
 }
 
 func (c *Client) Receive() (*models.Message, bool) {
 	select {
 	case msg := <-c.readBuf:
-		// fmt.Println("Message Get:", msg)
 		return msg, true
 	default:
 		return nil, false

@@ -12,19 +12,20 @@ import (
 
 type User struct {
 	gorm.Model
-	Name     string `gorm:"size:255;not null;" json:"name"`
-	Password string `gorm:"size:255;not null;" json:"password"`
+	Name     string   `gorm:"size:255;not null;" json:"name"`
+	Password string   `gorm:"size:255;not null;" json:"password"`
+	Friends  []Friend `gorm:"foreignKey:UserID" json:"friends"`
+	Blocks   []Block  `gorm:"foreignKey:UserID" json:"blocks"`
 }
-type Friends struct {
+type Friend struct {
 	gorm.Model
-	UserId   uint `json:"uid"`
-	FriendId uint `json:"fid"`
+	UserID   uint `json:"user_id"`
+	FriendID uint `json:"friend_id"`
 }
-
-type Blocks struct {
+type Block struct {
 	gorm.Model
-	UserId  uint `json:"uid"`
-	BlockId uint `json:"blockid"`
+	UserID  uint `json:"user_id"`
+	BlockID uint `json:"block_id"`
 }
 
 func GetUserByID(uid uint) (User, error) {
@@ -43,9 +44,9 @@ func (u *User) PrepareGive() {
 }
 
 func (u *User) SaveUser() (*User, error) {
-	// user Model().xxx to use hooks
+	// user Model().xxx to use hooks this is correct way.
+	// err := DB.Create(&u).Error   this is wrong to add user when using hooks.
 	err := DB.Model(&User{}).Create(&u).Error
-	// err := DB.Create(&u).Error
 	if err != nil {
 		return &User{}, err
 	}
@@ -53,8 +54,6 @@ func (u *User) SaveUser() (*User, error) {
 }
 
 func (u *User) BeforeSave(tx *gorm.DB) error {
-	// log.Println("BeforeSave working!")
-
 	//turn password into hash
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
