@@ -20,7 +20,8 @@ func (c *Client) ListenMsg() {
 		message := models.Message{}
 		err := c.C.ReadJSON(&message)
 		if err != nil {
-			log.Fatal("Message read error :", err)
+			// log.Fatal("Message read error :", err)
+			log.Println("Message read error :", err)
 		}
 
 		c.readBuf <- &message

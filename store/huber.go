@@ -98,9 +98,11 @@ func (h *Huber) MessageEnqueue(msg *models.Message) {
 
 func (h *Huber) GetAllUsers() []string {
 	ret := []string{}
+	h.locker.RLock()
 	for name := range h.clients {
 		ret = append(ret, name)
 	}
+	h.locker.RUnlock()
 
 	return ret
 }

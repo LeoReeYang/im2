@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 func TestConn(t *testing.T) {
@@ -80,16 +82,13 @@ func Test2People(t *testing.T) {
 
 	clientA := NewClient("Alice", *Addr, Path)
 
-	// defer clientB.C.Close()
-	// defer clientA.C.Close()
-
 	want := string("hello!")
 	clientA.Send("Bob", want)
 
 	time.Sleep(time.Second)
 
 	if msg, ok := clientB.Receive(); ok {
-		fmt.Println("Message get:", msg.Content)
+		color.HiYellow("Bob Message get:", msg.Content)
 		if msg.Content != want {
 			t.Errorf("content not match.")
 		}
@@ -99,13 +98,9 @@ func Test2People(t *testing.T) {
 	time.Sleep(time.Second)
 
 	if msg, ok := clientA.Receive(); ok {
-		fmt.Println("Message get:", msg.Content)
+		color.HiBlue("Alice Message get:", msg.Content)
 		if msg.Content != "hi!" {
 			t.Errorf("content not match.")
 		}
 	}
-}
-
-func TestMessageSend(t *testing.T) {
-
 }
