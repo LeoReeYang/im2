@@ -2,8 +2,6 @@ package store
 
 import "github.com/LeoReeYang/im2/models"
 
-// import "im/models"
-
 type MsgQueue struct {
 	msgqueue chan *models.Message
 }
