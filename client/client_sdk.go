@@ -11,33 +11,19 @@ import (
 
 type Client struct {
 	Name    string
-	C       *websocket.Conn
+	Conn    *websocket.Conn
 	readBuf chan *models.Message
-}
-
-func (c *Client) ListenMsg() {
-	for {
-		message := models.Message{}
-		err := c.C.ReadJSON(&message)
-		if err != nil {
-			// log.Fatal("Message read error :", err)
-			log.Println("Message read error :", err)
-		}
-
-		c.readBuf <- &message
-
-		log.Printf("client <%s> recive msg: %v\n", c.Name, message)
-	}
 }
 
 func NewClient(name string, host string, path string) *Client {
 	u := newWsUrl(name, host, path)
 	client := &Client{
 		Name:    name,
-		C:       newWebConn(u.String()),
+		Conn:    newWebConn(u.String()),
 		readBuf: make(chan *models.Message, 1024),
 	}
 
+	// listen Message from the conn
 	go client.ListenMsg()
 
 	return client
@@ -52,7 +38,7 @@ func (c *Client) Send(recipient, content string) {
 		Timestamp: time.Now().Unix(),
 	}
 
-	err := c.C.WriteJSON(msg)
+	err := c.Conn.WriteJSON(msg)
 	if err != nil {
 		log.Println(err)
 	}
@@ -60,11 +46,19 @@ func (c *Client) Send(recipient, content string) {
 }
 
 func (c *Client) Receive() (*models.Message, bool) {
-	select {
-	case msg := <-c.readBuf:
-		return msg, true
-	default:
+	// select {
+	// case msg := <-c.readBuf:
+	// 	return msg, true
+	// default:
+	// 	return nil, false
+	// }
+	defer func() (*models.Message, bool) {
 		return nil, false
+	}()
+
+	for {
+		msg := <-c.readBuf
+		return msg, true
 	}
 }
 

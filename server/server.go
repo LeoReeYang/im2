@@ -5,19 +5,19 @@ import (
 )
 
 type Server struct {
-	huber *store.Huber
+	hub *store.Hub
 }
 
 func NewServer(ms store.MessageStore) *Server {
 	s := new(Server)
-	s.huber = store.NewHuber(ms)
+	s.hub = store.NewHub(ms)
 	return s
 }
 
 func (s *Server) Setup() {
-	go s.huber.Run()
+	go s.hub.Run()
 }
 
-func (s *Server) GetHub() *store.Huber {
-	return s.huber
+func (s *Server) GetHub() *store.Hub {
+	return s.hub
 }

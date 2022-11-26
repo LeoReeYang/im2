@@ -41,7 +41,7 @@ func SetupRouters() {
 	})
 
 	r.GET("/users", func(ctx *gin.Context) {
-		data := hub.GetAllUsers()
+		data := hub.UserHandel.GetAllUsers()
 		ctx.JSON(http.StatusOK, gin.H{
 			"users": data,
 		})

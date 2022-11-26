@@ -18,36 +18,33 @@ func TestConn(t *testing.T) {
 	}
 }
 
-func TestRecv(t *testing.T) {
-	Client := NewClient("yzy", *Addr, Path)
-	// time.Sleep(time.Second)
+func TestEcho(t *testing.T) {
+	me := NewClient("yzy", *Addr, Path)
 
-	if msg, ok := Client.Receive(); ok {
-		fmt.Println("Message get:", msg)
-		// if msg.Content != "民族富强！" {
-		// 	t.Errorf("content not match.")
-		// }
+	for {
+		if msg, ok := me.Receive(); ok {
+			fmt.Println("Message get:", msg)
+			me.Send(msg.Sender, "hi!")
+		}
 	}
-	time.Sleep(10 * time.Second)
+
 }
 
 func TestSendMessage(t *testing.T) {
 	Client := NewClient("test", *Addr, Path)
 	time.Sleep(time.Second)
 
-	Client.Send("yzy", "Hello!")
-	time.Sleep(5 * time.Second)
+	Client.Send("Cy", "Hello!")
 }
 
 func TestSendAndRecive(t *testing.T) {
-	ClientA := NewClient("cy", *Addr, Path)
+	Me := NewClient("Me", *Addr, Path)
 
-	want := string("民族富强！")
+	want := string("hi!")
 
-	ClientA.Send("cy", want)
-	time.Sleep(time.Second)
+	Me.Send("Me", want)
 
-	if msg, ok := ClientA.Receive(); ok {
+	if msg, ok := Me.Receive(); ok {
 		fmt.Println("Message get:", msg.Content)
 		if msg.Content != want {
 			t.Errorf("content not match.")
@@ -55,51 +52,27 @@ func TestSendAndRecive(t *testing.T) {
 	}
 }
 
-func TestClient(t *testing.T) {
-	client := NewClient("Alice", *Addr, Path)
-	client.ListenMsg()
-
-	defer client.C.Close()
-
-	want := "test mgs"
-
-	client.Send("server", want)
-
-	msg, ok := client.Receive()
-
-	if ok {
-		fmt.Println("msg get:", msg)
-	}
-
-	if msg.Content != "test msg" {
-		t.Errorf("get msg: %v, but want: %s", msg.Content, want)
-	}
-}
-
 func Test2People(t *testing.T) {
-	clientB := NewClient("Bob", *Addr, Path)
-	defer time.Sleep(time.Second)
+	Alice := NewClient("Alice", *Addr, Path)
+	Bob := NewClient("Bob", *Addr, Path)
 
-	clientA := NewClient("Alice", *Addr, Path)
+	want := string("hello, Bob!")
+	Alice.Send("Bob", want)
 
-	want := string("hello!")
-	clientA.Send("Bob", want)
-
-	time.Sleep(time.Second)
-
-	if msg, ok := clientB.Receive(); ok {
-		color.HiYellow("Bob Message get:", msg.Content)
+	if msg, ok := Bob.Receive(); ok {
+		color.HiYellow("Bob get message:", msg.Content)
 		if msg.Content != want {
-			t.Errorf("content not match.")
+			t.Errorf("content doesn't match.")
 		}
 	}
 
-	clientB.Send("Alice", "hi!")
 	time.Sleep(time.Second)
 
-	if msg, ok := clientA.Receive(); ok {
+	Bob.Send("Alice", "hi, Alice!")
+
+	if msg, ok := Alice.Receive(); ok {
 		color.HiBlue("Alice Message get:", msg.Content)
-		if msg.Content != "hi!" {
+		if msg.Content != "hi, Alice!" {
 			t.Errorf("content not match.")
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/LeoReeYang/im2/models"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,4 +27,18 @@ func newWsUrl(name string, host string, path string) *url.URL {
 		RawQuery: "nickname=" + name,
 	}
 	return u
+}
+
+func (c *Client) ListenMsg() {
+	for {
+		message := models.Message{}
+		err := c.Conn.ReadJSON(&message)
+		if err != nil {
+			log.Println("Message read error :", err)
+		}
+
+		c.readBuf <- &message
+
+		log.Printf("client <%s> recive msg: %v\n", c.Name, message)
+	}
 }
