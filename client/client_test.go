@@ -21,10 +21,11 @@ func TestConn(t *testing.T) {
 func TestEcho(t *testing.T) {
 	me := NewClient("yzy", *Addr, Path)
 
+	me.Send("yzy", "hi! server")
 	for {
 		if msg, ok := me.Receive(); ok {
 			fmt.Println("Message get:", msg)
-			me.Send(msg.Sender, "hi!")
+			break
 		}
 	}
 

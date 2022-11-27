@@ -6,15 +6,20 @@ import (
 
 	v1 "github.com/LeoReeYang/im2/api/v1"
 	"github.com/LeoReeYang/im2/docs"
+	"github.com/LeoReeYang/im2/global"
 	"github.com/LeoReeYang/im2/middlewares"
-	"github.com/LeoReeYang/im2/server"
-	"github.com/LeoReeYang/im2/store"
+	"github.com/gorilla/websocket"
 
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/gin-gonic/gin"
 )
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
 
@@ -23,25 +28,15 @@ func SetupRouters() {
 	docs.SwaggerInfo.BasePath = ""
 	flag.Parse()
 
-	server := server.NewServer(store.NewSimpleStore())
-
-	hub := server.GetHub()
-	go hub.Run()
+	hub := global.Server.GetHub()
 
 	r.POST("/login", v1.Login)
 	r.POST("/register", v1.Register)
 
-	r.GET("/testchat", func(ctx *gin.Context) {
-		w := ctx.Writer
-		r := ctx.Request
-
-		name := ctx.Query("nickname")
-		// color.Magenta("nickname", name)
-		store.Handle(w, r, hub, name)
-	})
+	r.GET("/testchat", v1.ChannelHandle)
 
 	r.GET("/users", func(ctx *gin.Context) {
-		data := hub.UserHandel.GetAllUsers()
+		data := hub.UserMeta.GetAll()
 		ctx.JSON(http.StatusOK, gin.H{
 			"users": data,
 		})
@@ -61,14 +56,7 @@ func SetupRouters() {
 	chat := r.Group("/chat")
 	{
 		chat.Use(middlewares.JWTAuthMiddleware())
-		chat.GET("/", func(ctx *gin.Context) {
-			w := ctx.Writer
-			r := ctx.Request
-
-			name := ctx.Query("nickname")
-			// color.Magenta("nickname", name)
-			store.Handle(w, r, hub, name)
-		})
+		chat.GET("/", v1.ChannelHandle)
 	}
 
 	users := r.Group("/user")

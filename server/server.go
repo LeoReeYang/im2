@@ -1,16 +1,15 @@
 package server
 
-import (
-	"github.com/LeoReeYang/im2/store"
-)
-
 type Server struct {
-	hub *store.Hub
+	hub *Hub
 }
 
-func NewServer(ms store.MessageStore) *Server {
+func NewServer(mh MessageHandler, uh ConnectionHandeler) *Server {
 	s := new(Server)
-	s.hub = store.NewHub(ms)
+	s.hub = NewHub(mh, uh)
+
+	s.Setup()
+
 	return s
 }
 
@@ -18,6 +17,6 @@ func (s *Server) Setup() {
 	go s.hub.Run()
 }
 
-func (s *Server) GetHub() *store.Hub {
+func (s *Server) GetHub() *Hub {
 	return s.hub
 }
