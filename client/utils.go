@@ -9,10 +9,8 @@ import (
 )
 
 func newWebConn(url string) *websocket.Conn {
-	// log.Println(url)
 	c, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
-		// log.Fatal("Dial :", err)
 		log.Println(err)
 		return nil
 	}
@@ -39,6 +37,6 @@ func (c *Client) ListenMsg() {
 
 		c.readBuf <- &message
 
-		log.Printf("client <%s> recive msg: %v\n", c.Name, message)
+		// log.Printf("client <%s> recive msg: %v\n", c.Name, message)
 	}
 }

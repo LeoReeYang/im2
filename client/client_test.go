@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -18,26 +17,6 @@ func TestConn(t *testing.T) {
 	}
 }
 
-func TestEcho(t *testing.T) {
-	me := NewClient("yzy", *Addr, Path)
-
-	me.Send("yzy", "hi! server")
-	for {
-		if msg, ok := me.Receive(); ok {
-			fmt.Println("Message get:", msg)
-			break
-		}
-	}
-
-}
-
-func TestSendMessage(t *testing.T) {
-	Client := NewClient("test", *Addr, Path)
-	time.Sleep(time.Second)
-
-	Client.Send("Cy", "Hello!")
-}
-
 func TestSendAndRecive(t *testing.T) {
 	Me := NewClient("Me", *Addr, Path)
 
@@ -46,7 +25,7 @@ func TestSendAndRecive(t *testing.T) {
 	Me.Send("Me", want)
 
 	if msg, ok := Me.Receive(); ok {
-		fmt.Println("Message get:", msg.Content)
+		color.Cyan("Message get:", msg.Content)
 		if msg.Content != want {
 			t.Errorf("content not match.")
 		}
@@ -61,7 +40,7 @@ func Test2People(t *testing.T) {
 	Alice.Send("Bob", want)
 
 	if msg, ok := Bob.Receive(); ok {
-		color.HiYellow("Bob get message:", msg.Content)
+		color.Yellow("Bob gets message:", msg.Content)
 		if msg.Content != want {
 			t.Errorf("content doesn't match.")
 		}
@@ -72,7 +51,7 @@ func Test2People(t *testing.T) {
 	Bob.Send("Alice", "hi, Alice!")
 
 	if msg, ok := Alice.Receive(); ok {
-		color.HiBlue("Alice Message get:", msg.Content)
+		color.Blue("Alice gets message:", msg.Content)
 		if msg.Content != "hi, Alice!" {
 			t.Errorf("content not match.")
 		}
