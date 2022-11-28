@@ -16,8 +16,11 @@ func NewMessageMeta() *MessageMeta {
 	}
 }
 
-func (s *MessageMeta) Get() *models.Message {
-	return nil
+func (s *MessageMeta) Get(name string) []models.Message {
+	var msgs []models.Message
+	s.db.Find(&msgs)
+	return msgs
+	// return nil
 }
 
 func (s *MessageMeta) Put(msg *models.Message) error {

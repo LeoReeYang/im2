@@ -32,6 +32,8 @@ func NewClient(name string, host string, path string) *Client {
 
 func (c *Client) Send(recipient, content string) {
 	msg := &models.Message{
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 		Sender:    c.Name,
 		Recipient: recipient,
 		Type:      "message",

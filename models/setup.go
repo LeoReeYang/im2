@@ -19,7 +19,6 @@ func InitDB() {
 	}
 
 	DB = db
-
 	DB.AutoMigrate(&User{}, &Friend{}, &Block{}, &Message{})
 }
 

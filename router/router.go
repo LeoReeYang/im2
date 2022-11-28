@@ -42,6 +42,14 @@ func SetupRouters() {
 		})
 	})
 
+	r.GET("/messages/:name", func(ctx *gin.Context) {
+		name := ctx.Param("name")
+		data := hub.MessageMeta.Get(name)
+		ctx.JSON(http.StatusOK, gin.H{
+			"Messages": data,
+		})
+	})
+
 	protected := r.Group("api/admin")
 	{
 		protected.Use(middlewares.JWTAuthMiddleware())

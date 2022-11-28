@@ -6,8 +6,13 @@ import (
 )
 
 var (
-	ConnectionMeta server.ConnectionHandeler = Meta.NewConnectionMeta()
-	MessageMeta    server.MessageHandler     = Meta.NewMessageMeta()
-
-	Server *server.Server = server.NewServer(MessageMeta, ConnectionMeta)
+	ConnectionMeta server.ConnectionHandeler
+	MessageMeta    server.MessageHandler
+	Server         *server.Server
 )
+
+func Init() {
+	ConnectionMeta = Meta.NewConnectionMeta()
+	MessageMeta = Meta.NewMessageMeta()
+	Server = server.NewServer(MessageMeta, ConnectionMeta)
+}

@@ -16,7 +16,7 @@ const (
 )
 
 type MessageHandler interface {
-	Get() *models.Message
+	Get(string) []models.Message
 	Put(*models.Message) error
 }
 
@@ -55,7 +55,11 @@ func (h *Hub) NewConnection(name string, conn *websocket.Conn) {
 
 func (h *Hub) Transfer(msg *models.Message) {
 	receiver := h.UserMeta.Get(msg.Recipient)
-	receiver.Message2SendChannel(msg)
+	if receiver != nil {
+		msg.Timestamp = time.Now().Unix()
+		h.MessageMeta.Put(msg)
+		receiver.Message2SendChannel(msg)
+	}
 }
 
 func (h *Hub) HandleRegister(c *connection.Connection) {

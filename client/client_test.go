@@ -22,7 +22,7 @@ func TestSendAndRecive(t *testing.T) {
 
 	want := string("hi!")
 
-	Me.Send("Cy", want)
+	Me.Send("Me", want)
 
 	if msg, ok := Me.Receive(); ok {
 		color.Cyan("Message get:", msg.Content)
