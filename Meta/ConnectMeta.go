@@ -1,6 +1,8 @@
 package Meta
 
 import (
+	"github.com/fatih/color"
+
 	"sync"
 	"time"
 
@@ -20,7 +22,7 @@ func NewConnectionMeta() *ConnectionMeta {
 	}
 }
 
-func (um *ConnectionMeta) GetByName(name string) *connection.Connection {
+func (um *ConnectionMeta) Get(name string) *connection.Connection {
 	um.rmmutex.RLock()
 	defer um.rmmutex.RUnlock()
 
@@ -34,12 +36,14 @@ func (um *ConnectionMeta) GetByName(name string) *connection.Connection {
 func (um *ConnectionMeta) Put(c *connection.Connection) {
 	um.rmmutex.Lock()
 	defer um.rmmutex.Unlock()
+
 	um.conns[c.GetName()] = c
 }
 
 func (um *ConnectionMeta) Remove(name string) {
 	um.rmmutex.Lock()
 	defer um.rmmutex.Unlock()
+
 	delete(um.conns, name)
 }
 
@@ -66,6 +70,7 @@ func (um *ConnectionMeta) CheckConnections() {
 			for name, conn := range um.conns {
 				if conn.GetAlive() == connection.Offline {
 					delete(um.conns, name)
+					color.HiMagenta("[ %s ] connection removed. ", name)
 				}
 			}
 			um.rmmutex.Unlock()

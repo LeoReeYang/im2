@@ -21,7 +21,7 @@ type MessageHandler interface {
 }
 
 type ConnectionHandeler interface {
-	GetByName(string) *connection.Connection
+	Get(string) *connection.Connection
 	Put(*connection.Connection)
 	Remove(string)
 	GetAll() []string
@@ -49,20 +49,20 @@ func NewHub(mh MessageHandler, uh ConnectionHandeler) *Hub {
 
 func (h *Hub) NewConnection(name string, conn *websocket.Conn) {
 	newConnection := connection.NewConnection(name, conn)
-	h.RegisterConnection(newConnection)
-	newConnection.ListenChannel()
+	h.HandleRegister(newConnection)
+	newConnection.ListenMessages()
 }
 
 func (h *Hub) Transfer(msg *models.Message) {
-	receiver := h.UserMeta.GetByName(msg.Recipient)
-	receiver.PutSendChannel(msg)
+	receiver := h.UserMeta.Get(msg.Recipient)
+	receiver.Message2SendChannel(msg)
 }
 
-func (h *Hub) RegisterConnection(c *connection.Connection) {
+func (h *Hub) HandleRegister(c *connection.Connection) {
 	color.Cyan("[ %s ]  connection registering...", c.GetName())
 	h.register <- c
 }
-func (h *Hub) LeaveConnection(c *connection.Connection) {
+func (h *Hub) HandleLeave(c *connection.Connection) {
 	color.Cyan("[ %s ]  connection leaving...", c.GetName())
 	h.leave <- c
 }

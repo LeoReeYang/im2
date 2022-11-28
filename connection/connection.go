@@ -1,7 +1,6 @@
 package connection
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/LeoReeYang/im2/models"
@@ -53,7 +52,7 @@ func (c *Connection) PutReciveChannel(msg *models.Message) {
 	c.recive <- msg
 }
 
-func (c *Connection) PutSendChannel(msg *models.Message) {
+func (c *Connection) Message2SendChannel(msg *models.Message) {
 	c.send <- msg
 }
 
@@ -84,12 +83,12 @@ func (c *Connection) read() {
 		var msg models.Message
 		err := c.conn.ReadJSON(&msg)
 		if err != nil {
-			color.Red("Huber Connection ReadJSON:", err)
+			color.Red("[%s] Reading Data failed: %v", c.GetName(), err)
 			return
 		}
 		mq.MQ <- &msg
 
-		color.Magenta("Client %v get msg from conn:\n msg: %v\n", c.name, msg)
+		color.Magenta("[%s] Reading Data: %v", c.GetName(), msg)
 	}
 }
 
@@ -111,11 +110,11 @@ func (c *Connection) write() {
 			} else {
 				err := c.conn.WriteJSON(message)
 				if err != nil {
-					fmt.Println("Client WriteJson Error: ", err)
+					color.Red("[ %s ] Sending Data Failed:", c.GetName(), err)
 					return
 				}
 
-				color.Magenta("Client: < %s > send msg to conn\nmsg : %v\n", c.name, message)
+				color.Magenta("[%s] Sending Data: %v", c.name, message)
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -126,7 +125,7 @@ func (c *Connection) write() {
 	}
 }
 
-func (c *Connection) ListenChannel() {
+func (c *Connection) ListenMessages() {
 	go c.read()
 	go c.write()
 }
