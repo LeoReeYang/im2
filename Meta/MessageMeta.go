@@ -17,10 +17,9 @@ func NewMessageMeta() *MessageMeta {
 }
 
 func (s *MessageMeta) Get(name string) []models.Message {
-	var msgs []models.Message
-	s.db.Find(&msgs)
-	return msgs
-	// return nil
+	var messages []models.Message
+	s.db.Where("recipient = ?", name).Find(&messages)
+	return messages
 }
 
 func (s *MessageMeta) Put(msg *models.Message) error {
