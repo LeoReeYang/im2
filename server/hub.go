@@ -24,7 +24,7 @@ type ConnectionHandeler interface {
 	Get(string) *connection.Connection
 	Put(*connection.Connection)
 	Remove(string)
-	GetAll() []string
+	All() []string
 	CheckConnections()
 }
 
@@ -63,11 +63,11 @@ func (h *Hub) Transfer(msg *models.Message) {
 }
 
 func (h *Hub) HandleRegister(c *connection.Connection) {
-	color.Cyan("[ %s ]  connection registering...", c.GetName())
+	color.Cyan("[ %s ] registering...", c.GetName())
 	h.register <- c
 }
 func (h *Hub) HandleLeave(c *connection.Connection) {
-	color.Cyan("[ %s ]  connection leaving...", c.GetName())
+	color.Cyan("[ %s ] leaving...", c.GetName())
 	h.leave <- c
 }
 

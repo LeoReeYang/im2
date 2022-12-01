@@ -22,58 +22,58 @@ func NewConnectionMeta() *ConnectionMeta {
 	}
 }
 
-func (um *ConnectionMeta) Get(name string) *connection.Connection {
-	um.rmmutex.RLock()
-	defer um.rmmutex.RUnlock()
+func (cm *ConnectionMeta) Get(name string) *connection.Connection {
+	cm.rmmutex.RLock()
+	defer cm.rmmutex.RUnlock()
 
-	if user, ok := um.conns[name]; ok {
+	if user, ok := cm.conns[name]; ok {
 		return user
 	}
 
 	return nil
 }
 
-func (um *ConnectionMeta) Put(c *connection.Connection) {
-	um.rmmutex.Lock()
-	defer um.rmmutex.Unlock()
+func (cm *ConnectionMeta) Put(c *connection.Connection) {
+	cm.rmmutex.Lock()
+	defer cm.rmmutex.Unlock()
 
-	um.conns[c.GetName()] = c
+	cm.conns[c.GetName()] = c
 }
 
-func (um *ConnectionMeta) Remove(name string) {
-	um.rmmutex.Lock()
-	defer um.rmmutex.Unlock()
+func (cm *ConnectionMeta) Remove(name string) {
+	cm.rmmutex.Lock()
+	defer cm.rmmutex.Unlock()
 
-	delete(um.conns, name)
+	delete(cm.conns, name)
 }
 
-func (um *ConnectionMeta) GetAll() []string {
-	um.rmmutex.RLock()
-	defer um.rmmutex.RUnlock()
+func (cm *ConnectionMeta) All() []string {
+	cm.rmmutex.RLock()
+	defer cm.rmmutex.RUnlock()
 
 	conns := []string{}
-	for name := range um.conns {
+	for name := range cm.conns {
 		conns = append(conns, name)
 	}
 
 	return conns
 }
 
-func (um *ConnectionMeta) CheckConnections() {
+func (cm *ConnectionMeta) CheckConnections() {
 	ticker := time.NewTicker(CheckPeriod)
 	done := make(chan struct{})
 
 	for {
 		select {
 		case <-ticker.C:
-			um.rmmutex.Lock()
-			for name, conn := range um.conns {
+			cm.rmmutex.Lock()
+			for name, conn := range cm.conns {
 				if conn.GetAlive() == connection.Offline {
-					delete(um.conns, name)
+					delete(cm.conns, name)
 					color.HiMagenta("[ %s ] connection removed. ", name)
 				}
 			}
-			um.rmmutex.Unlock()
+			cm.rmmutex.Unlock()
 		case <-done:
 			return
 		}

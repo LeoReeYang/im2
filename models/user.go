@@ -28,22 +28,30 @@ type Block struct {
 	BlockID uint `json:"block_id"`
 }
 
-func GetUserByID(uid uint) (User, error) {
-	var u User
+func Get(uid uint) (*User, error) {
+	u := User{}
 
 	if err := DB.First(&u, uid).Error; err != nil {
-		return u, errors.New("user not found")
+		return &u, errors.New("user not found")
 	}
 
 	u.PrepareGive()
 
-	return u, nil
+	return &u, nil
 }
+
+func All() (users []User, err error) {
+	if err = DB.Find(&users).Error; err != nil {
+		return
+	}
+	return
+}
+
 func (u *User) PrepareGive() {
 	u.Password = ""
 }
 
-func (u *User) SaveUser() (*User, error) {
+func (u *User) Save() (*User, error) {
 	// user Model().xxx to use hooks this is correct way.
 	// err := DB.Create(&u).Error   this is wrong to add user when using hooks.
 	err := DB.Model(&User{}).Create(&u).Error
@@ -71,12 +79,11 @@ func VerifyPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
-func LoginCheck(username string, password string) (string, error) {
+func UserVerify(username string, password string) (string, error) {
 	var err error
 	u := User{}
 
 	err = DB.Model(User{}).Where("name = ?", username).First(&u).Error
-
 	if err != nil {
 		return "", err
 	}
@@ -87,7 +94,7 @@ func LoginCheck(username string, password string) (string, error) {
 		return "", err
 	}
 
-	token, err := token.GenerateToken(u.ID)
+	token, err := token.GenerateToken(u.ID, username)
 
 	if err != nil {
 		return "", err

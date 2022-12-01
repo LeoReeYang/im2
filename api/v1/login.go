@@ -21,8 +21,8 @@ func Login(c *gin.Context) {
 		Name:     data.Name,
 		Password: data.Password,
 	}
-
-	token, err := models.LoginCheck(u.Name, u.Password)
+	// verify the user with a token back when user is valid
+	token, err := models.UserVerify(u.Name, u.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "username or password is incorrect."})
 		return
@@ -37,13 +37,14 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, models.RegisterRsp{
 			Message: err.Error(),
 		})
+		return
 	}
 
 	u := models.User{
 		Name:     data.Name,
 		Password: data.Password,
 	}
-	_, err = u.SaveUser()
+	_, err = u.Save()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.RegisterRsp{
 			Message: err.Error(),

@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type MsgType int32
 
@@ -10,9 +12,7 @@ const (
 )
 
 type Message struct {
-	ID        uint `gorm:"primarykey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	gorm.Model
 	Sender    string `json:"sender"`
 	Recipient string `json:"recipient"`
 	Type      string `json:"type"`
